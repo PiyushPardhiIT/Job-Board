@@ -1,0 +1,40 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: naukri-job-portal-api
+
+  # Database Connection
+  datasource:
+    url: jdbc:mysql://localhost:3306/naukri_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root          # Replace with your MySQL username
+    password: piyushp@rdhi999  # Replace with your MySQL password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      pool-name: NaukriHikariCP
+
+  # JPA & Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update      # Automatically update schema based on Entities
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # File Upload Configuration (for Resumes & Logos)
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+# Application specific settings
+app:
+  jwt:
+    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    expiration-ms: 86400000 # 24 hours
