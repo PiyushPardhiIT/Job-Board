@@ -1,7 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { LogOut } from "lucide-react";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { LogOut, PlusCircle } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout, isRecruiter } = useAuth();
@@ -25,10 +25,23 @@ export default function Navbar() {
             <Link to="/" className="hover:text-naukri-blue transition-colors">
               Jobs
             </Link>
+
+            {/* Recruiter-only links */}
             {isRecruiter && (
-              <span className="text-xs bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-semibold">
-                Recruiter Portal
-              </span>
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/recruiter/dashboard"
+                  className="text-xs bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-semibold hover:bg-amber-200 transition-colors"
+                >
+                  Recruiter Dashboard
+                </Link>
+                <Link
+                  to="/recruiter/post-job"
+                  className="flex items-center gap-1 text-xs text-naukri-blue hover:text-naukri-blueHover font-semibold transition-colors"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" /> Post a Job
+                </Link>
+              </div>
             )}
           </nav>
         </div>
@@ -37,21 +50,21 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {user ? (
             <div className="flex items-center gap-4">
-              {/* Clickable Profile Badge */}
+              {/* Profile / Dashboard Navigation Badge */}
               <Link
-                to="/profile"
-                className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-50 transition-colors"
-                title="View & Edit Profile"
+                to={isRecruiter ? '/recruiter/dashboard' : '/profile'}
+                className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                title={isRecruiter ? 'Open Recruiter Dashboard' : 'View & Edit Candidate Profile'}
               >
                 <div className="w-8 h-8 rounded-full bg-blue-100 text-naukri-blue flex items-center justify-center font-bold text-sm">
-                  {user.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+                  {user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div className="text-left hidden sm:block">
                   <div className="text-xs font-bold text-gray-800">
                     {user.fullName}
                   </div>
                   <div className="text-[10px] text-gray-500">
-                    {isRecruiter ? "Employer" : "Jobseeker (View Profile)"}
+                    {isRecruiter ? 'Employer Portal' : 'Jobseeker (View Profile)'}
                   </div>
                 </div>
               </Link>
