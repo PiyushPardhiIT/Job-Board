@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
-import { Briefcase, Plus, MapPin, IndianRupee, Trash2 } from 'lucide-react';
+import { Briefcase, Plus, MapPin, IndianRupee, Trash2, Users } from 'lucide-react';
 
 export default function RecruiterDashboardPage() {
   const [jobs, setJobs] = useState([]);
@@ -47,14 +47,17 @@ export default function RecruiterDashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-naukri-navy">Employer Dashboard</h1>
-          <p className="text-sm text-naukri-textMuted mt-1">Manage your active job postings and applicants</p>
+          <p className="text-sm text-naukri-textMuted mt-1">
+            Manage your active vacancies and inspect candidate applications
+          </p>
         </div>
         <Link
           to="/recruiter/post-job"
-          className="flex items-center gap-2 px-5 py-2.5 bg-naukri-blue hover:bg-naukri-blueHover text-white font-semibold rounded-lg shadow-sm text-sm transition-colors"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-naukri-blue hover:bg-naukri-blueHover text-white font-semibold rounded-lg shadow-sm text-sm transition-colors"
         >
           <Plus className="w-4 h-4" /> Post a Job
         </Link>
@@ -83,6 +86,7 @@ export default function RecruiterDashboardPage() {
               key={job.id}
               className="bg-white border border-naukri-border rounded-xl p-6 shadow-sm hover:border-blue-200 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
+              {/* Job Details */}
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <h3 className="text-lg font-bold text-naukri-navy">{job.title}</h3>
@@ -122,10 +126,19 @@ export default function RecruiterDashboardPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-3 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+              <div className="flex items-center gap-3 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0">
+                {/* View Applicants ATS Button */}
+                <Link
+                  to={`/recruiter/jobs/${job.id}/applicants`}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-blue-50 text-naukri-blue border border-blue-200 hover:bg-blue-100 transition-colors"
+                >
+                  <Users className="w-3.5 h-3.5" /> View Applicants
+                </Link>
+
+                {/* Status Toggle */}
                 <button
                   onClick={() => toggleStatus(job.id, job.status)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-semibold border ${
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold border ${
                     job.status === 'ACTIVE'
                       ? 'border-gray-300 text-gray-700 hover:bg-gray-50'
                       : 'border-emerald-600 text-emerald-600 hover:bg-emerald-50'
@@ -134,9 +147,10 @@ export default function RecruiterDashboardPage() {
                   {job.status === 'ACTIVE' ? 'Close Job' : 'Reopen Job'}
                 </button>
 
+                {/* Delete Button */}
                 <button
                   onClick={() => handleDelete(job.id)}
-                  className="p-2 text-gray-400 hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                  className="p-2 text-gray-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
                   title="Delete Job"
                 >
                   <Trash2 className="w-4 h-4" />

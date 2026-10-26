@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogOut, PlusCircle } from 'lucide-react';
+import { LogOut, PlusCircle, FileText } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout, isRecruiter } = useAuth();
@@ -26,7 +26,17 @@ export default function Navbar() {
               Jobs
             </Link>
 
-            {/* Recruiter-only links */}
+            {/* Seeker-only Link: My Applications */}
+            {user && !isRecruiter && (
+              <Link
+                to="/my-applications"
+                className="hover:text-naukri-blue transition-colors flex items-center gap-1.5 font-semibold text-xs text-gray-700"
+              >
+                <FileText className="w-3.5 h-3.5 text-naukri-blue" /> My Applications
+              </Link>
+            )}
+
+            {/* Recruiter-only Links */}
             {isRecruiter && (
               <div className="flex items-center gap-3">
                 <Link

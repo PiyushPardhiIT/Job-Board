@@ -13,6 +13,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import com.naukri.jobportal.dto.request.JobSearchCriteria;
+import com.naukri.jobportal.entity.EmploymentType;
+import com.naukri.jobportal.entity.WorkMode;
+import org.springframework.data.domain.Sort;
+import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/jobs")
@@ -74,5 +80,29 @@ public class JobController {
             @AuthenticationPrincipal UserDetails userDetails) {
         jobService.deleteJob(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/public/search")
+    public ResponseEntity<Page<JobResponse>> searchJobs(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Integer experience,
+            @RequestParam(required = false) List<WorkMode> workModes,
+            @RequestParam(required = false) List<EmploymentType> employmentTypes,
+            @RequestParam(required = false) BigDecimal minSalary,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        JobSearchCriteria criteria = new JobSearchCriteria();
+        criteria.setKeyword(keyword);
+        criteria.setLocation(location);
+        criteria.setExperience(experience);
+        criteria.setWorkModes(workModes);
+        criteria.setEmploymentTypes(employmentTypes);
+        criteria.setMinSalary(minSalary);
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok(jobService.searchJobs(criteria, pageRequest));
     }
 }

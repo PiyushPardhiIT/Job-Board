@@ -1,15 +1,21 @@
 package com.naukri.jobportal.service.impl;
 
 import com.naukri.jobportal.dto.request.JobCreateRequest;
+import com.naukri.jobportal.dto.request.JobSearchCriteria;
 import com.naukri.jobportal.dto.response.JobResponse;
-import com.naukri.jobportal.entity.*;
+import com.naukri.jobportal.entity.Company;
+import com.naukri.jobportal.entity.Job;
+import com.naukri.jobportal.entity.JobStatus;
+import com.naukri.jobportal.entity.User;
 import com.naukri.jobportal.repository.CompanyRepository;
 import com.naukri.jobportal.repository.JobRepository;
 import com.naukri.jobportal.repository.UserRepository;
 import com.naukri.jobportal.service.JobService;
+import com.naukri.jobportal.specification.JobSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +29,25 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public JobResponse createJob(JobCreateRequest request, String recruiterEmail) {
-        User recruiter = userRepository.findByEmail(recruiterEmail)
-                .orElseThrow(() -> new RuntimeException("Recruiter not found: " + recruiterEmail));
+    public JobResponse createJob(
+            JobCreateRequest request,
+            String recruiterEmail) {
 
-        // Find or create Company record
-        Company company = companyRepository.findByCompanyNameIgnoreCase(request.getCompanyName())
+        User recruiter = userRepository.findByEmail(recruiterEmail)
+                .orElseThrow(() -> new RuntimeException(
+                        "Recruiter not found: " + recruiterEmail));
+
+        // Find an existing company or create a new one
+        Company company = companyRepository
+                .findByCompanyNameIgnoreCase(request.getCompanyName())
                 .orElseGet(() -> companyRepository.save(
                         Company.builder()
                                 .companyName(request.getCompanyName())
                                 .website(request.getCompanyWebsite())
-                                .industry(request.getCompanyIndustry() != null ? request.getCompanyIndustry() : "IT & Software")
+                                .industry(
+                                        request.getCompanyIndustry() != null
+                                                ? request.getCompanyIndustry()
+                                                : "IT & Software")
                                 .about(request.getCompanyAbout())
                                 .build()
                 ));
@@ -58,21 +72,47 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public JobResponse getJobById(Long id) {
+
         Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Job not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException(
+                        "Job not found with id: " + id));
+
         return mapToResponse(job);
     }
 
     @Override
-    public Page<JobResponse> getMyPostedJobs(String recruiterEmail, Pageable pageable) {
-        return jobRepository.findByPostedByEmailOrderByCreatedAtDesc(recruiterEmail, pageable)
+    @Transactional(readOnly = true)
+    public Page<JobResponse> getMyPostedJobs(
+            String recruiterEmail,
+            Pageable pageable) {
+
+        return jobRepository
+                .findByPostedByEmailOrderByCreatedAtDesc(
+                        recruiterEmail, pageable)
+                .map(this::mapToResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<JobResponse> searchJobs(
+            JobSearchCriteria criteria,
+            Pageable pageable) {
+
+        Specification<Job> spec = JobSpecification.build(criteria);
+
+        return jobRepository.findAll(spec, pageable)
                 .map(this::mapToResponse);
     }
 
     @Override
     @Transactional
-    public JobResponse updateJob(Long jobId, JobCreateRequest request, String recruiterEmail) {
+    public JobResponse updateJob(
+            Long jobId,
+            JobCreateRequest request,
+            String recruiterEmail) {
+
         Job job = getJobAndValidateOwnership(jobId, recruiterEmail);
 
         job.setTitle(request.getTitle());
@@ -91,30 +131,47 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public JobResponse updateJobStatus(Long jobId, JobStatus status, String recruiterEmail) {
+    public JobResponse updateJobStatus(
+            Long jobId,
+            JobStatus status,
+            String recruiterEmail) {
+
         Job job = getJobAndValidateOwnership(jobId, recruiterEmail);
+
         job.setStatus(status);
+
         return mapToResponse(jobRepository.save(job));
     }
 
     @Override
     @Transactional
     public void deleteJob(Long jobId, String recruiterEmail) {
+
         Job job = getJobAndValidateOwnership(jobId, recruiterEmail);
+
         jobRepository.delete(job);
     }
 
-    private Job getJobAndValidateOwnership(Long jobId, String recruiterEmail) {
-        Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found with id: " + jobId));
+    private Job getJobAndValidateOwnership(
+            Long jobId,
+            String recruiterEmail) {
 
-        if (!job.getPostedBy().getEmail().equalsIgnoreCase(recruiterEmail)) {
-            throw new RuntimeException("Access Denied: You can only manage jobs posted by you.");
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException(
+                        "Job not found with id: " + jobId));
+
+        if (!job.getPostedBy().getEmail()
+                .equalsIgnoreCase(recruiterEmail)) {
+
+            throw new RuntimeException(
+                    "Access Denied: You can only manage jobs posted by you.");
         }
+
         return job;
     }
 
     private JobResponse mapToResponse(Job job) {
+
         return JobResponse.builder()
                 .id(job.getId())
                 .title(job.getTitle())
