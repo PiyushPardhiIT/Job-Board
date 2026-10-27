@@ -12,18 +12,12 @@ export default {
     extend: {
       colors: {
         naukri: {
-          navy: "#1B2544",       // Header background & dark text
-          blue: "#275DF5",       // Primary Naukri CTA Blue
-          blueHover: "#1E4FD9",  // Button hover state
-          teal: "#0984E3",       // Secondary accent
-          bgGray: "#F4F5F7",     // Card/Page background
-          border: "#E2E8F0",     // Clean card borders
-          textDark: "#1E2229",   // Job titles & primary text
-          textMuted: "#8292B0",  // Subtitles & metadata
+          navy: "#1B2544",
+          blue: "#275DF5",
+          blueHover: "#1E4FD9",
+          bgGray: "#F8F9FB",
+          border: "#E2E8F0",
         }
-      },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
       }
     },
   },
